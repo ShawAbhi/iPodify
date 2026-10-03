@@ -63,8 +63,19 @@ iPodify doesn't read your notifications, has no account, and sends nothing anywh
 | Vibrate | For click-wheel haptics. |
 | Internet | Only to load artwork that a player shares as a web link. |
 
-On Android 13 and later, a sideloaded app's notification access can be greyed out as a *restricted setting*. To allow it, open iPodify's **App info**, tap **⋮**, choose **Allow restricted settings**, and then allow notification access.
+### Sideloading & Play Protect
 
+> [!NOTE]
+> **Google Play Protect Notice:**
+> When sideloading an APK through a browser, Google Play Protect may display a warning (*"App blocked to protect your device"*) because iPodify requests **Notification Access** (`BIND_NOTIFICATION_LISTENER_SERVICE`).
+>
+> In Android, this permission is the **only API** that lets third-party apps read and control other music apps' playback (`MediaSessionManager`). iPodify does not read private notifications or OTPs—it only mirrors music controls.
+>
+> **If installation is blocked:**
+> 1. Open **Google Play Store** > tap your profile icon > **Play Protect**.
+> 2. Tap the **gear icon (⚙️)** in the top right.
+> 3. Temporarily turn off **"Scan apps with Play Protect"** to install the APK.
+> 4. *(Android 13+)* If Notification Access is greyed out as a *restricted setting*, open iPodify's **App info**, tap **⋮**, choose **Allow restricted settings**, and then allow notification access.
 ## Building
 
 Open the project in Android Studio, or run:

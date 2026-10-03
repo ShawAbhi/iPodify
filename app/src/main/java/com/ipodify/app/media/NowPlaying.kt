@@ -167,6 +167,7 @@ object NowPlaying : PodController {
         val controller = active
         if (controller == null) {
             activeQueue = emptyList()
+            artCache.clear()
             ticker?.cancel()
             position.positionMs = 0L
             _state.value = PlayerState(position = position)
@@ -176,10 +177,13 @@ object NowPlaying : PodController {
         val playback = controller.playbackState
         val isPlaying = playback?.state == PlaybackState.STATE_PLAYING ||
             playback?.state == PlaybackState.STATE_BUFFERING
-        val current = metadata?.toSong()
+        val artSeen = HashMap<String, Bitmap>()
+        val current = metadata?.toSong()?.withStableArt(artSeen)
 
         activeQueue = controller.queue.orEmpty()
-        val queueSongs = activeQueue.map { it.toSong() }
+        val queueSongs = activeQueue.map { it.toSong().withStableArt(artSeen) }
+        // Forget artwork for tracks that are no longer around.
+        artCache.keys.retainAll(artSeen.keys)
         val activeId = playback?.activeQueueItemId ?: MediaSession.QueueItem.UNKNOWN_ID.toLong()
         var index = activeQueue.indexOfFirst { it.queueId == activeId }
         if (index < 0 && current != null) {
@@ -225,6 +229,29 @@ object NowPlaying : PodController {
                 }
             }
         }
+    }
+
+    /**
+     * The artwork last published for each track, by [Song.id].
+     *
+     * Every read of a session's metadata or queue is a fresh copy from the
+     * playing app, artwork bitmaps included — and apps report playback state
+     * about once a second. A Bitmap is only equal to itself, so without this
+     * every update would look like new artwork and the screens would fade it
+     * out and back in. Unchanged artwork keeps the instance already shown.
+     */
+    private val artCache = mutableMapOf<String, Bitmap>()
+
+    private fun Song.withStableArt(seen: MutableMap<String, Bitmap>): Song {
+        val art = thumbnailUrl as? Bitmap ?: return this
+        val previous = artCache[id]
+        val same = previous != null && previous !== art && runCatching {
+            previous.width == art.width && previous.height == art.height && previous.sameAs(art)
+        }.getOrDefault(false)
+        val kept = if (same) previous!! else art
+        artCache[id] = kept
+        seen[id] = kept
+        return if (kept === art) this else copy(thumbnailUrl = kept)
     }
 
     /** The playhead now: the last reported position, run forward at the playback speed. */
