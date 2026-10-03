@@ -1,19 +1,36 @@
 # iPodify
 
-A click-wheel iPod that floats over any music app on Android, and controls whatever is playing:
-Spotify, YouTube Music, Apple Music, SoundCloud, a podcast app, anything with a media session.
+A click-wheel iPod that floats over any music app on Android, bringing retro iPod controls to whatever is playing:
+Spotify, YouTube Music, Apple Music, SoundCloud, a podcast app, or anything with an active media session.
 
-- **Floating bubble.** Drag it around and fling it to an edge, where it can half-hide. Drag it to the bottom of the screen to close it.
-- **iPod window.** Tap the bubble to open the iPod.
-  - Spin the wheel to move through the queue.
+[![Release](https://img.shields.io/github/v/release/ShawAbhi/iPodify?color=blue&logo=github)](https://github.com/ShawAbhi/iPodify/releases/latest)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
+
+## Previews
+
+<div align="center">
+
+| Works Over Any App (Light Mode) | Classic Dark Mode & Playlist Queue | Fullscreen Lock Screen Mode |
+| :---: | :---: | :---: |
+| <img src="Captures/Screenshot_20261003_231140.png" width="280" alt="Light Mode floating over YouTube Music" /> | <img src="Captures/Screenshot_20261003_231400.png" width="280" alt="Dark Mode with Playlist Cover Flow" /> | <img src="Captures/Screenshot_20261003_231716.png" width="280" alt="Lock screen iPod overlay" /> |
+| **Works with almost any app**<br>Floating iPod over YouTube Music, Spotify, etc. | **Playlist queue & iPod controls**<br>Cover Flow playlist navigation in sleek dark mode | **Lockscreen integration**<br>Full-screen click-wheel control when enabled |
+
+</div>
+
+## Features
+
+- **Works with almost any music app:** Seamlessly floats over and controls Spotify, YouTube Music, Apple Music, SoundCloud, podcasts, and more.
+- **Iconic iPod Controls & Playlist Browsing:**
+  - Spin the tactile wheel to browse through your queue and playlist.
   - Press the centre button to play the selected track.
-  - MENU switches between the playlist and Now Playing.
-  - ⏮ ⏭ ⏯ do what they say.
-  - On Now Playing, the wheel changes the volume. Press the centre button there to scrub through the track.
-- **Cover Flow** for the queue, with reflections and the current cover blurred behind it.
-- **Resize** the iPod by dragging either bottom corner. Make it small enough and it shrinks back into the bubble.
-- **Lock screen.** While the iPod is open, locking the phone shows it full screen. Swipe up from the bottom to unlock as usual. You can switch this off in the app.
-- **Haptics** on the wheel, which play even when touch vibration is off.
+  - **MENU** toggles between the playlist and Now Playing view.
+  - Dedicated ⏮ ⏭ ⏯ playback buttons.
+  - On Now Playing, spin the wheel to adjust volume; press the centre button to scrub through tracks.
+- **Both Light & Dark Modes:** Features both the classic white/silver iPod aesthetic and sleek matte dark mode.
+- **Cover Flow:** Visual queue display with artwork reflections and dynamic background blur.
+- **Lock Screen Mode (Optional):** When enabled in settings, locking your phone opens the iPod full screen with swipe-to-unlock gesture support.
+- **Floating Bubble & Resize:** Drag and fling to hide or dock at any screen edge. Resize the iPod by dragging either bottom corner or pinch to collapse.
+- **Wheel Haptics:** Realistic tactile vibration feedback on every turn of the wheel (works even when system touch vibration is disabled).
 
 ## How it works
 
