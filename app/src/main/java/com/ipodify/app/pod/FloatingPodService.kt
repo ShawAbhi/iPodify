@@ -180,6 +180,31 @@ class FloatingPodService : Service(), LifecycleOwner, ViewModelStoreOwner, Saved
             }
         }
 
+        /** Start-intent extra: appear tucked half into the edge rather than fully on screen. */
+        private const val EXTRA_TUCKED = "com.ipodify.app.TUCKED"
+
+        /**
+         * Brings the bubble up on its own because music started: tucked half
+         * into the edge where the user last dropped it, out of the way until
+         * wanted. Does nothing if the PIP is already up or "Display over other
+         * apps" isn't granted — this is never the moment to ask for it.
+         */
+        fun showForMusic(context: Context) {
+            if (isRunning.value || !Settings.canDrawOverlays(context)) return
+            try {
+                context.startService(
+                    Intent(context, FloatingPodService::class.java).putExtra(EXTRA_TUCKED, true),
+                )
+            } catch (e: IllegalStateException) {
+                // Android refused a start from the background. The notification
+                // listener normally keeps iPodify allowed to, but not on every
+                // phone; the bubble just doesn't appear this time.
+                Log.w(TAG, "Could not show the bubble for music: ${e.message}")
+            } catch (e: SecurityException) {
+                Log.w(TAG, "Could not show the bubble for music: ${e.message}")
+            }
+        }
+
         /** Closes the PIP and stops the service. */
         fun stop(context: Context) {
             context.stopService(Intent(context, FloatingPodService::class.java))
@@ -289,7 +314,13 @@ class FloatingPodService : Service(), LifecycleOwner, ViewModelStoreOwner, Saved
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        if (intent?.action == ACTION_STOP) stopSelf()
+        if (intent?.action == ACTION_STOP) {
+            stopSelf()
+        } else if (!appeared && bubbleView != null) {
+            // The first start places the bubble; later ones (it's already up) don't move it.
+            appeared = true
+            appear(tucked = intent?.getBooleanExtra(EXTRA_TUCKED, false) == true)
+        }
         // Not worth recreating after the process dies: the PIP would come
         // back with nothing having asked for it.
         return START_NOT_STICKY
@@ -342,10 +373,26 @@ class FloatingPodService : Service(), LifecycleOwner, ViewModelStoreOwner, Saved
             ContextCompat.RECEIVER_NOT_EXPORTED,
         )
         screenReceiverRegistered = true
+        // The bubble is placed and popped in by [appear], from onStartCommand,
+        // which knows how it was asked for.
+    }
 
-        // Start on the right edge, a quarter of the way down, and pop in.
+    /** Whether [appear] has run: only the first start places the bubble. */
+    private var appeared = false
+
+    /**
+     * Puts the bubble where the user last dropped it — that side, that height
+     * ([PodSettings.bubbleOnRight], [PodSettings.bubbleY]) — and pops it in.
+     *
+     * @param tucked half buried in the edge, as when it comes up on its own
+     *   because music started; fully on screen when the user opened it.
+     */
+    private fun appear(tucked: Boolean) {
         val area = area()
-        restPos = clampRest(Offset(area.right, area.top + (area.bottom - area.top) * 0.25f))
+        val y = area.top + (area.bottom - area.top) * PodSettings.bubbleY
+        val x = if (PodSettings.bubbleOnRight) area.right else area.left
+        restBuried = tucked
+        restPos = clampRest(Offset(x, y), tucked)
         snap(restPos)
         scope.launch {
             bubbleScale.animateTo(1f, spring(dampingRatio = 0.45f, stiffness = 400f))
@@ -794,6 +841,9 @@ class FloatingPodService : Service(), LifecycleOwner, ViewModelStoreOwner, Saved
             .coerceIn(area.top + margin, max(area.top + margin, area.bottom - margin - size))
         restPos = Offset(x, y)
         springTo(restPos, FLING_SPRING, velocity)
+        // Remembered, so the bubble comes back here next time.
+        val height = area.bottom - area.top
+        if (height > 0f) PodSettings.setBubbleSpot(toRight, (y - area.top) / height)
     }
 
     /** The resting x on a side: half off the edge when buried, [EDGE_MARGIN_DP] in from it otherwise. */

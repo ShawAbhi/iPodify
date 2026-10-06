@@ -83,6 +83,7 @@ private fun SetupScreen(resumes: Int) {
     val player by NowPlaying.state.collectAsState()
     val podOpen by FloatingPodService.isRunning
     val lockScreen by PodSettings.lockScreen.collectAsState()
+    val autoShow by PodSettings.autoShow.collectAsState()
 
     Column(
         Modifier
@@ -162,6 +163,29 @@ private fun SetupScreen(resumes: Int) {
                 onClick = { FloatingPodService.start(context) },
                 modifier = Modifier.fillMaxWidth().height(52.dp),
             ) { Text("Open iPod") }
+        }
+
+        Card(Modifier.fillMaxWidth()) {
+            Row(
+                Modifier.padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column(Modifier.weight(1f)) {
+                    Text("Show when music plays", style = MaterialTheme.typography.titleMedium)
+                    Text(
+                        if (autoShow) {
+                            "The bubble appears by itself, tucked into the edge where you last left it, " +
+                                "whenever music starts in any app."
+                        } else {
+                            "Open the iPod from here when you want it."
+                        },
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                Spacer(Modifier.width(12.dp))
+                Switch(checked = autoShow, onCheckedChange = PodSettings::setAutoShow)
+            }
         }
 
         Card(Modifier.fillMaxWidth()) {
